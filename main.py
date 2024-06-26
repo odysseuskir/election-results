@@ -1,3 +1,5 @@
+from itertools import combinations
+
 def election_results():
     print("Welcome to election results! A fun way to calculate the results of an election and the seat distribution of a Parliament! I will have to ask some questions")
 
@@ -12,9 +14,13 @@ def election_results():
 
     print("Thank you for the information! I will now calculate the results of the election and the seat distribution in the Parliament.")
 
+    parties = []
     votes = []
     for i in range(1, num_parties + 1):
-        votes.append(int(input(f"\nHow many votes did party {i} get? (Please enter the number of votes)\n")))
+        party_name = input(f"What is the name of party {i}?\n")
+        party_votes = int(input(f"How many votes did {party_name} get? (Please enter the number of votes)\n"))
+        parties.append(party_name)
+        votes.append(party_votes)
 
     total_votes_cast = sum(votes)
     voter_turnout = (actual_voters / registered_voters) * 100
@@ -23,9 +29,9 @@ def election_results():
     blank_votes_percentage = (blank_votes / actual_voters) * 100
 
     print(f"The total number of votes cast in the election is: {total_votes_cast}")
-    print(f"The voter turnout in the election is: {voter_turnout}%")
-    print(f"The percentage of invalid votes is: {invalid_votes_percentage}%")
-    print(f"The percentage of blank votes is: {blank_votes_percentage}%")
+    print(f"The voter turnout in the election is: {voter_turnout:.2f}%")
+    print(f"The percentage of invalid votes is: {invalid_votes_percentage:.2f}%")
+    print(f"The percentage of blank votes is: {blank_votes_percentage:.2f}%")
 
     valid_votes = total_votes_cast - invalid_votes - blank_votes
     threshold_votes = (threshold_percentage / 100) * valid_votes
@@ -37,7 +43,7 @@ def election_results():
 
     print("The following parties meet the threshold and get a seat in the Parliament:")
     for i in valid_parties_indices:
-        print(f"Party {i + 1}")
+        print(f"{parties[i]}")
 
     # Calculate the proportional seats
     valid_total_votes = sum(valid_parties_votes)
@@ -65,9 +71,32 @@ def election_results():
     print("\nThe seat distribution in the Parliament is as follows:\n")
     for i in range(num_parties):
         party_percentage = (votes[i] / total_votes_cast) * 100
-        print(f"Party {i + 1} gets {seats[i]} seats and ({party_percentage:.2f}% of votes)\n")
+        print(f"{parties[i]} has {seats[i]} seats ({party_percentage:.2f}% of votes)\n")
 
     print(f"\n\nThe total number of seats in the Parliament is: {sum(seats)}")
+
+    # Calculate possible coalitions
+    majority_threshold = (total_seats // 2) + 1
+    print(f"\nA majority in the Parliament requires {majority_threshold} seats.")
+
+    def find_coalitions(parties, seats, majority_threshold):
+        possible_coalitions = []
+        for r in range(1, len(parties) + 1):
+            for coalition in combinations(range(len(parties)), r):
+                total_seats = sum(seats[i] for i in coalition)
+                if total_seats >= majority_threshold:
+                    coalition_parties = [parties[i] for i in coalition]
+                    possible_coalitions.append((coalition_parties, total_seats))
+        return possible_coalitions
+
+    possible_coalitions = find_coalitions(parties, seats, majority_threshold)
+
+    if possible_coalitions:
+        print("\nPossible coalitions that can form a majority:")
+        for coalition, total_seats in possible_coalitions:
+            print(f"Coalition possibility: {', '.join(coalition)} with {total_seats} seats")
+    else:
+        print("\nNo possible coalitions can form a majority.")
 
     print("Thank you for using election results! I hope you enjoyed calculating the results of the election and the seat distribution in the Parliament!")
 

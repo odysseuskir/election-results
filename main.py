@@ -1,3 +1,4 @@
+import csv
 from itertools import combinations
 
 def election_results():
@@ -130,8 +131,10 @@ def election_results():
         seats = dhondt_method(votes, total_seats)
 
     print("\nThe seat distribution in the Parliament is as follows:\n")
+    party_percentages = []
     for i in range(num_parties):
         party_percentage = (votes[i] / sum(votes)) * 100
+        party_percentages.append(party_percentage)
         print(f"{parties[i]} get(s) {seats[i]} seats ({party_percentage:.2f}% of votes)\n")
 
     # Calculate possible coalitions
@@ -156,6 +159,19 @@ def election_results():
             print(f"Coalition: {', '.join(coalition)} with {total_seats} seats")
     else:
         print("\nNo possible coalitions can form a majority.")
+
+    # Export results to CSV
+    with open('election_results.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Metric', 'Value'])
+        writer.writerow(['Βlank votes', f"{blank_votes_percentage:.2f}%"])
+        writer.writerow(['Ιnvalid votes', f"{invalid_votes_percentage:.2f}%"])
+        writer.writerow(['Τurnout', f"{voter_turnout:.2f}%"])
+        for i in range(num_parties):
+            writer.writerow([f"{parties[i]}'s votes", f"{party_percentages[i]:.2f}%"])
+            writer.writerow([f"{parties[i]} gets", f"{seats[i]:.2f} seats"])
+
+    print("The election results have been exported to 'election_results.csv'.")
 
 # Run the election results function
 election_results()
